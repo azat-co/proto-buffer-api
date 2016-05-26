@@ -8,41 +8,47 @@ let messages = [
 ]
 let publicFolderName = 'public'
 app.use(express.static(publicFolderName))
+app.use (function(req, res, next) {
+  var data = [] // List of Buffer objects
+  req.on('data', function(chunk) {
+      data.push(chunk) // Append Buffer object
+  })
+  req.on('end', function() {
+    data = Buffer.concat(data) // Make one large Buffer of it
+    console.log(data)
+    // var mm = Message.decode(data)
+    // console.log(mm)
+    req.raw = data
+    next()
+  })
+})
 let ProtoBuf = require('protobufjs')
 let builder = ProtoBuf.loadProtoFile(path.join(__dirname, publicFolderName, 'message.proto'))
 let Message = builder.build('Message')
 
 app.get('/api/messages', (req, res, next)=>{
   let msg = new Message(messages[Math.round(Math.random()*2)])
-  // res.end(msg.toBuffer(), 'binary')
-
-  // console.log(msg, msg.encode(), msg.encode().toBuffer());
-
-  console.log(msg.encode().toBuffer());
-  console.log(Message.decode(msg.encode().toBuffer()));
-  // res.end(msg.encode().toBuffer(), 'binary')
+  console.log('Encode and decode: ', Message.decode(msg.encode().toBuffer()))
+  console.log('Buffer we are sending: ', msg.encode().toBuffer())
+  // res.end(msg.encode().toBuffer(), 'binary') // alternative
   res.send(msg.encode().toBuffer())
-  // res.end(Buffer.from(msg.toArrayBuffer()), 'binary')
+  // res.end(Buffer.from(msg.toArrayBuffer()), 'binary') // alternative
 })
 
 app.post('/api/messages', (req, res, next)=>{
-  // if (flags.binary) {
+  if (req.raw) {
     try {
         // Decode the Message
-        var msg = Message.decode(data)
-        console.log("Received: "+msg.text)
-        // Transform the text to upper case
-        msg.text = msg.text.toUpperCase()
-        // Re-encode it and send it back
-        socket.send(msg.toBuffer())
-        console.log("Sent: "+msg.text)
+        console.log(req.raw)
+        var msg = Message.decode(req.raw)
+        console.log('Received "%s" in %s', msg.text, msg.lang)
     } catch (err) {
-        console.log("Processing failed:", err)
+        console.log('Processing failed:', err)
         next(err)
     }
-  // } else {
-      // console.log("Not binary data");
-  // }
+  } else {
+      console.log("Not binary data")
+  }
 })
 
 app.all('*', (req, res)=>{

@@ -8,23 +8,35 @@
   <body>
     <script type="text/javascript">
       "use strict";
-      var ProtoBuf = dcodeIO.ProtoBuf
-      var Message = ProtoBuf
-        .loadProtoFile("./message.proto", (err, builder)=>{
-          Message = builder.build("Message")
+      let ProtoBuf = dcodeIO.ProtoBuf
+      let Message = ProtoBuf
+        .loadProtoFile('./message.proto', (err, builder)=>{
+          Message = builder.build('Message')
           loadMessage()
+          setTimeout(sendMessage, 1000)
         })
 
       let loadMessage = ()=> {
         axios.get('/api/messages', {responseType: 'arraybuffer'})
           .then(function (response) {
-            console.log(response);
-            var msg = Message.decode(response.data);
-            console.log(msg);
+            console.log(response)
+            let msg = Message.decode(response.data)
+            console.log(msg)
           })
           .catch(function (response) {
-            console.log(response);
-          });
+            console.log(response)
+          })
+      }
+      let sendMessage = ()=>{
+        let msg = new Message({text: 'yo', lang: 'slang'})
+        axios.post('/api/messages', msg.toArrayBuffer(),
+          {responseType: 'arraybuffer', headers: {'Content-Type': 'application/octet-stream'}})
+          .then(function (response) {
+            console.log(response)
+          })
+          .catch(function (response) {
+            console.log(response)
+          })
       }
     </script>
   </body>
