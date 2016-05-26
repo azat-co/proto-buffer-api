@@ -10,18 +10,22 @@
       "use strict";
       var ProtoBuf = dcodeIO.ProtoBuf
       var Message = ProtoBuf
-        .loadProtoFile("./message.proto")
-        .build("Message")
-
-      axios.get('/api/messages', {responseType: 'arraybuffer'})
-        .then(function (response) {
-          console.log(response);
-          var msg = Message.decode(response.data);
-          console.log(msg);
+        .loadProtoFile("./message.proto", (err, builder)=>{
+          Message = builder.build("Message")
+          loadMessage()
         })
-        .catch(function (response) {
-          console.log(response);
-        });
+
+      let loadMessage = ()=> {
+        axios.get('/api/messages', {responseType: 'arraybuffer'})
+          .then(function (response) {
+            console.log(response);
+            var msg = Message.decode(response.data);
+            console.log(msg);
+          })
+          .catch(function (response) {
+            console.log(response);
+          });
+      }
     </script>
   </body>
 </html>
