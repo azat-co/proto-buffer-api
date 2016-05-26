@@ -1,9 +1,27 @@
 <html>
   <head>
-    <script src="https://raw.github.com/dcodeIO/Long.js/master/dist/Long.min.js"></script>
-    <script src="https://raw.githubusercontent.com/dcodeIO/bytebuffer.js/master/dist/bytebuffer.js"></script>
-    <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/5.0.1/dist/protobuf.js"></script>
+    <script src="long.js"></script>
+    <script src="bytebuffer.js"></script>
+    <script src="protobuf.js"></script>
+    <script src="axios.min.js"></script>
   </head>
   <body>
+    <script type="text/javascript">
+      "use strict";
+      var ProtoBuf = dcodeIO.ProtoBuf
+      var Message = ProtoBuf
+        .loadProtoFile("./message.proto")
+        .build("Message")
+
+      axios.get('/api/messages', {responseType: 'arraybuffer'})
+        .then(function (response) {
+          console.log(response);
+          var msg = Message.decode(response.data);
+          console.log(msg);
+        })
+        .catch(function (response) {
+          console.log(response);
+        });
+    </script>
   </body>
 </html>

@@ -6,15 +6,22 @@ let messages = [
   {text: 'isänme', lang: 'tatar'},
   {text: 'hej', lang: 'swedish'}
 ]
-app.use(express.static('public'))
+let publicFolderName = 'public'
+app.use(express.static(publicFolderName))
 let ProtoBuf = require('protobufjs')
-let builder = ProtoBuf.loadProtoFile(path.join(__dirname, 'message.proto'))
+let builder = ProtoBuf.loadProtoFile(path.join(__dirname, publicFolderName, 'message.proto'))
 let Message = builder.build('Message')
 
 app.get('/api/messages', (req, res, next)=>{
-  let msg = new Message(messages[Math.round(Math.random()*3)])
+  let msg = new Message(messages[Math.round(Math.random()*2)])
   // res.end(msg.toBuffer(), 'binary')
-  res.send(msg.toBuffer())
+
+  // console.log(msg, msg.encode(), msg.encode().toBuffer());
+
+  console.log(msg.encode().toBuffer());
+  console.log(Message.decode(msg.encode().toBuffer()));
+  // res.end(msg.encode().toBuffer(), 'binary')
+  res.send(msg.encode().toBuffer())
   // res.end(Buffer.from(msg.toArrayBuffer()), 'binary')
 })
 
