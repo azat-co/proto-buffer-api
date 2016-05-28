@@ -20,9 +20,9 @@
       let loadMessage = ()=> {
         axios.get('/api/messages', {responseType: 'arraybuffer'})
           .then(function (response) {
-            console.log(response)
+            console.log('Response from the server: ', response)
             let msg = Message.decode(response.data)
-            console.log(msg)
+            console.log('Decoded message', msg)
             document.getElementById('content').innerText = JSON.stringify(msg, null, 2)
           })
           .catch(function (response) {
@@ -32,8 +32,9 @@
       let sendMessage = ()=>{
         let msg = new Message({text: 'yo', lang: 'slang'})
         axios.post('/api/messages', msg.toArrayBuffer(),
-          {responseType: 'arraybuffer', headers: {'Content-Type': 'application/octet-stream'}})
-          .then(function (response) {
+            { responseType: 'arraybuffer',
+            headers: {'Content-Type': 'application/octet-stream'}}
+          ).then(function (response) {
             console.log(response)
           })
           .catch(function (response) {

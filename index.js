@@ -9,26 +9,31 @@ let messages = [
 let publicFolderName = 'public'
 app.use(express.static(publicFolderName))
 app.use (function(req, res, next) {
+  if (!req.is('application/octet-stream')) return next()
   var data = [] // List of Buffer objects
   req.on('data', function(chunk) {
       data.push(chunk) // Append Buffer object
   })
   req.on('end', function() {
+    if (data.length <= 0 ) return next()
     data = Buffer.concat(data) // Make one large Buffer of it
-    console.log(data)
-    // var mm = Message.decode(data)
-    // console.log(mm)
+    console.log('Received buffer', data)
     req.raw = data
     next()
   })
 })
 let ProtoBuf = require('protobufjs')
-let builder = ProtoBuf.loadProtoFile(path.join(__dirname, publicFolderName, 'message.proto'))
+let builder = ProtoBuf.loadProtoFile(
+  path.join(__dirname,
+  publicFolderName,
+  'message.proto')
+)
 let Message = builder.build('Message')
 
 app.get('/api/messages', (req, res, next)=>{
   let msg = new Message(messages[Math.round(Math.random()*2)])
-  console.log('Encode and decode: ', Message.decode(msg.encode().toBuffer()))
+  console.log('Encode and decode: ',
+    Message.decode(msg.encode().toBuffer()))
   console.log('Buffer we are sending: ', msg.encode().toBuffer())
   // res.end(msg.encode().toBuffer(), 'binary') // alternative
   res.send(msg.encode().toBuffer())
@@ -39,15 +44,14 @@ app.post('/api/messages', (req, res, next)=>{
   if (req.raw) {
     try {
         // Decode the Message
-        // console.log(req.raw)
-        var msg = Message.decode(req.raw)
-        console.log('Received "%s" in %s', msg.text, msg.lang)
+      var msg = Message.decode(req.raw)
+      console.log('Received "%s" in %s', msg.text, msg.lang)
     } catch (err) {
-        console.log('Processing failed:', err)
-        next(err)
+      console.log('Processing failed:', err)
+      next(err)
     }
   } else {
-      console.log("Not binary data")
+    console.log("Not binary data")
   }
 })
 
