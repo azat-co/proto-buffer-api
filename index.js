@@ -39,7 +39,7 @@ app.post('/api/messages', (req, res, next)=>{
   if (req.raw) {
     try {
         // Decode the Message
-        console.log(req.raw)
+        // console.log(req.raw)
         var msg = Message.decode(req.raw)
         console.log('Received "%s" in %s', msg.text, msg.lang)
     } catch (err) {

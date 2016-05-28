@@ -6,6 +6,8 @@
     <script src="axios.min.js"></script>
   </head>
   <body>
+    <pre id="content"></pre>
+    <button onClick="sendMessage()">send message to server</button>
     <script type="text/javascript">
       "use strict";
       let ProtoBuf = dcodeIO.ProtoBuf
@@ -13,7 +15,6 @@
         .loadProtoFile('./message.proto', (err, builder)=>{
           Message = builder.build('Message')
           loadMessage()
-          setTimeout(sendMessage, 1000)
         })
 
       let loadMessage = ()=> {
@@ -22,6 +23,7 @@
             console.log(response)
             let msg = Message.decode(response.data)
             console.log(msg)
+            document.getElementById('content').innerText = JSON.stringify(msg, null, 2)
           })
           .catch(function (response) {
             console.log(response)
