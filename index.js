@@ -1,3 +1,5 @@
+"use strict"
+
 let path = require('path')
 let express = require('express')
 let app = express()
@@ -7,6 +9,7 @@ let messages = [
   {text: 'hej', lang: 'swedish'}
 ]
 let publicFolderName = 'public'
+const port = process.env.PORT || 3000
 app.use(express.static(publicFolderName))
 app.use (function(req, res, next) {
   if (!req.is('application/octet-stream')) return next()
@@ -59,4 +62,5 @@ app.all('*', (req, res)=>{
   res.status(400).send('Not supported')
 })
 
-app.listen(3000)
+app.listen(port)
+console.log("Running on port " + port)
